@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/contract/request.h"
+#include "runtime/contract/u128.h"
 #include "core/transfer_work.h"
 #include <array>
 #include <cstddef>
@@ -36,15 +37,15 @@ struct PrefillWork {
     result.tokens                       = suffix_tokens;
     result.vision_items                 = vision_items;
     result.vision_patches               = vision_patches;
-    const unsigned __int128 suffix      = suffix_tokens;
-    const unsigned __int128 linear      = static_cast<unsigned __int128>(prefix_tokens) * suffix;
-    const unsigned __int128 triangular  = suffix * (suffix + 1U) / 2U;
-    constexpr unsigned __int128 maximum = ~static_cast<unsigned __int128>(0);
-    const unsigned __int128 attention =
+    const u128 suffix      = static_cast<u128>(suffix_tokens);
+    const u128 linear      = u128(prefix_tokens) * suffix;
+    const u128 triangular  = suffix * (suffix + 1U) >> 1;
+    const u128 maximum     = u128(UINT64_MAX, UINT64_MAX);
+    const u128 attention =
         triangular > maximum - linear ? maximum : linear + triangular;
     result.attention_pairs = attention > std::numeric_limits<std::uint64_t>::max()
                                  ? std::numeric_limits<std::uint64_t>::max()
-                                 : static_cast<std::uint64_t>(attention);
+                                 : u128_low64(attention);
     return result;
 }
 

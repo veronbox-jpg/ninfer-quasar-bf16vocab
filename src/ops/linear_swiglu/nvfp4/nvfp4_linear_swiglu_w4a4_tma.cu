@@ -80,9 +80,15 @@ void launch_nvfp4_linear_swiglu_w4a4_tma(const std::uint8_t* activation_codes,
         activation_codes, activation_scales, weight_codes, weight_scales, tokens);
     constexpr int kPairN = M256N128S3::kBlockN / 2;
     const dim3 grid((Geometry::kOutputRows / 2) / kPairN, tokens / M256N128S3::kBlockM);
+    Nvfp4W4a4TmaDescriptors* d_descriptors = nullptr;
+    CUDA_CHECK(cudaMallocAsync(reinterpret_cast<void**>(&d_descriptors),
+                               sizeof(Nvfp4W4a4TmaDescriptors), stream));
+    CUDA_CHECK(cudaMemcpyAsync(d_descriptors, &descriptors, sizeof(descriptors),
+                               cudaMemcpyHostToDevice, stream));
     nvfp4_linear_swiglu_w4a4_tma_kernel<Geometry, M256N128S3>
-        <<<grid, M256N128S3::kThreads, kSharedBytes, stream>>>(descriptors, alpha, output);
+        <<<grid, M256N128S3::kThreads, kSharedBytes, stream>>>(d_descriptors, alpha, output);
     CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaFreeAsync(d_descriptors, stream));
 }
 
 } // namespace ninfer::ops::detail

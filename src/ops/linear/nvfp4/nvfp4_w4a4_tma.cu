@@ -75,9 +75,15 @@ void launch_tma(const std::uint8_t* activation_codes, const std::uint8_t* activa
     // The last M tile may be partial; the kernel bounds itself by the real token count.
     const dim3 grid(Geometry::kOutputRows / Schedule::kBlockN,
                     (tokens + Schedule::kBlockM - 1) / Schedule::kBlockM);
+    Nvfp4W4a4TmaDescriptors* d_descriptors = nullptr;
+    CUDA_CHECK(cudaMallocAsync(reinterpret_cast<void**>(&d_descriptors),
+                               sizeof(Nvfp4W4a4TmaDescriptors), stream));
+    CUDA_CHECK(cudaMemcpyAsync(d_descriptors, &descriptors, sizeof(descriptors),
+                               cudaMemcpyHostToDevice, stream));
     nvfp4_w4a4_tma_kernel<Geometry, Schedule><<<grid, Schedule::kThreads, kSharedBytes, stream>>>(
-        descriptors, alpha, epilogue, output, tokens);
+        d_descriptors, alpha, epilogue, output, tokens);
     CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaFreeAsync(d_descriptors, stream));
 }
 
 template <class Geometry, class Schedule = TmaM256N128>

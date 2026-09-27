@@ -17,7 +17,14 @@
 #include <system_error>
 #include <utility>
 
+#if defined(_WIN32)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 
 namespace ninfer::serve {
 namespace {
@@ -38,8 +45,13 @@ std::uint64_t unix_time_ms() {
 std::string new_server_instance_id() {
     const auto now    = std::chrono::system_clock::now().time_since_epoch();
     const auto micros = std::chrono::duration_cast<std::chrono::microseconds>(now).count();
+#if defined(_WIN32)
+    return "serve-" + std::to_string(static_cast<long long>(::GetCurrentProcessId())) + '-' +
+           std::to_string(micros);
+#else
     return "serve-" + std::to_string(static_cast<long long>(::getpid())) + '-' +
            std::to_string(micros);
+#endif
 }
 
 std::filesystem::path normalized_absolute_path(const std::string& value) {

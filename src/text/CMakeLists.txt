@@ -4,6 +4,10 @@ add_library(ninfer_text STATIC
 )
 ninfer_internal_includes(ninfer_text)
 target_include_directories(ninfer_text PRIVATE ${PROJECT_SOURCE_DIR}/third_party)
+if(WIN32)
+  # Static library compiled in-process: suppress __declspec(dllimport) on utf8proc's exported globals.
+  target_compile_definitions(ninfer_text PUBLIC UTF8PROC_STATIC)
+endif()
 
 # Language evaluation reuses the engine's Unicode and JSON dependencies.
 target_sources(ninfer_jinja PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/jinja.cpp)
