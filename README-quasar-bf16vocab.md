@@ -1,7 +1,7 @@
 # NInfer — `quasar-bf16vocab` branch (Windows)
 
 Windows build branch of [Neroued/ninfer](https://github.com/Neroued/ninfer) for the
-[Qwen3.8-27B QUASAR NVFP4 · BF16 vocab · DFlash2](https://huggingface.co/<HF_USER>/Qwen3.8-27B-QUASAR-NVFP4-BF16vocab-DFlash2-NInfer)
+[Qwen3.8-27B QUASAR NVFP4 · BF16 vocab · DFlash2](https://huggingface.co/Kuramor/Qwen3.8-27B-QUASAR-NVFP4-BF16vocab-DFlash2-NInfer)
 model artifact.
 
 Base: upstream `5b4303c0ea0e8ab2be3efa54a677829f3edab6e5`. Three changes on top:
